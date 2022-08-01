@@ -1,21 +1,18 @@
 import todoItemTemplate from './todoItemTemplate.js';
 import mockData from './mockData.js';
 
-console.log('todolist');
-
 const items = mockData;
 
 const refs = {
   todoList: document.querySelector('.todo-list'),
   form: document.querySelector('.form'),
-  sortByEl: document.querySelector('.sort-by'),
+  sortBy: document.querySelector('.sort-by'),
   queryInput: document.querySelector('.query-input'),
 };
-
 let sortBy = '';
 let query = '';
 
-const sort = filteredItems => {
+const sort = (filteredItems) => {
   switch (sortBy) {
     case 'name-asc':
       return [...filteredItems].sort((a, b) => a.text.localeCompare(b.text));
@@ -44,24 +41,22 @@ const render = () => {
   const filteredItems = query
     ? items.filter(({ text }) => text.toLowerCase().includes(query))
     : items;
-
   const sortedItems = sort(filteredItems);
-
   const list = sortedItems.map(todoItemTemplate).join('');
 
   refs.todoList.innerHTML = '';
-  refs.todoList.insertAdjacentHTML('afterbegin', list);
+  refs.todoList.insertAdjacentHTML('beforeend', list);
 };
 
-const addItem = text => {
+const addItem = (text) => {
   const newTodo = {
-    id: uuid.v4(),
+    id: uuid.v4(), // script imported from cdnjs
     text,
     isDone: false,
     date: Date.now(),
   };
-  console.log(newTodo);
-  items.unshift(newTodo); // новы елементи додаються в початок
+
+  items.unshift(newTodo);
   render();
 };
 
@@ -70,30 +65,27 @@ const handleRemoveItem = () => {
   render();
 };
 
-const handleSubmit = e => {
+const handleSubmit = (e) => {
   e.preventDefault();
-  console.log(e.target.elements.text.value);
-
   addItem(e.target.elements.text.value);
-
   e.target.elements.text.value = '';
 };
 
-const handleQueryInput = e => {
+const handleQueryInput = (e) => {
   query = e.target.value.toLowerCase();
-  console.log(query);
 
   render();
 };
 
-const handleSortChange = e => {
+const handleSortChange = (e) => {
   sortBy = e.target.value.toLowerCase();
+
   render();
 };
 
 render();
 
-//===================eventListener===========================
+// ---- event listeners ----
 refs.form.addEventListener('submit', handleSubmit);
 refs.queryInput.addEventListener('input', handleQueryInput);
-refs.sortByEl.addEventListener('change', handleSortChange);
+refs.sortBy.addEventListener('change', handleSortChange);
