@@ -1,9 +1,10 @@
 import todoItemTemplate from './todoItemTemplate.js';
+import modalTemplate from './modalTemplate.js';
 import mockData from './mockData.js';
 
 console.log('todolist');
 
-const items = mockData;
+let items = mockData;
 
 const refs = {
   todoList: document.querySelector('.todo-list'),
@@ -51,6 +52,8 @@ const render = () => {
 
   refs.todoList.innerHTML = '';
   refs.todoList.insertAdjacentHTML('afterbegin', list);
+
+  console.log(items[3]);
 };
 
 const addItem = text => {
@@ -61,12 +64,7 @@ const addItem = text => {
     date: Date.now(),
   };
   console.log(newTodo);
-  items.unshift(newTodo); // новы елементи додаються в початок
-  render();
-};
-
-const handleRemoveItem = () => {
-  items.shift();
+  items.unshift(newTodo); // нові елементи додаються в початок
   render();
 };
 
@@ -91,9 +89,65 @@ const handleSortChange = e => {
   render();
 };
 
+const removeItem = id => {
+  items = items.filter(item => item.id !== id);
+  render();
+};
+
+const updateItem = id => {
+  items = items.map(item =>
+    item.id === id
+      ? {
+          ...item,
+          isDone: !item.isDone,
+        }
+      : item
+  );
+  render();
+};
+
+const viewItem = id => {
+  const currentItem = items.find(item => item.id === id);
+  const instance = basicLightbox.create(modalTemplate(currentItem.text));
+  const button = instance.element().querySelector('button');
+
+  button.addEventListener('click', instance.close);
+  instance.show();
+};
+
+const onBtnClick = (type, id) => {
+  switch (type) {
+    case 'view':
+      viewItem(id);
+      break;
+
+    case 'remove':
+      removeItem(id);
+      break;
+  }
+};
+
+const handleItemClick = e => {
+  const parent = e.target.closest('li');
+  const { id } = parent.dataset;
+
+  switch (e.target.nodeName) {
+    case 'BUTTON':
+      onBtnClick(e.target.dataset.type, id);
+      break;
+
+    case 'INPUT':
+      updateItem(id);
+      break;
+  }
+};
+
 render();
 
 //===================eventListener===========================
 refs.form.addEventListener('submit', handleSubmit);
 refs.queryInput.addEventListener('input', handleQueryInput);
 refs.sortByEl.addEventListener('change', handleSortChange);
+refs.todoList.addEventListener('click', handleItemClick);
+
+// =================basicLightbox тест=======================
